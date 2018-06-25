@@ -48,7 +48,8 @@ int stack_peek(struct stack *stack)
     return stack->next ? stack->next->data : -1;
 }
 
-void stack_traverse(struct stack *stack, void (*callback)(struct stack *stack))
+void stack_traverse(struct stack *stack, 
+        void (*callback)(struct stack *stack))
 {
     if (stack->next) 
     {

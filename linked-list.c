@@ -25,10 +25,10 @@ int list_size(struct list *list)
 
 struct list *list_create(void)
 {
-    struct list *head = calloc(1, sizeof(struct list));
-    struct list *tail = calloc(1, sizeof(struct list));
-    head->next = tail;
-    return head;
+    struct list *first = calloc(1, sizeof(struct list));
+    struct list *last = calloc(1, sizeof(struct list));
+    first->next = last;
+    return first;
 }
 
 struct list *list_prepend(struct list *list, int data)
