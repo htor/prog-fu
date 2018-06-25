@@ -58,7 +58,6 @@ struct list *list_remove(struct list *list, int data)
     if (list->next->data == data) {
         struct list *rm = list->next;
         list->next = list->next->next;
-        rm->next = NULL;
         free(rm);
         return rm;
     }
