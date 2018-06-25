@@ -153,6 +153,7 @@ int main(int argc, char **argv)
     assert(s1->data == 32);
     assert(s2 == NULL);
     
+    list_traverse(list, list_print);
     list_free(list);
     return 0;
 }
