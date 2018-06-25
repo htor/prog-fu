@@ -41,18 +41,49 @@ void set_remove(struct set *set, int data)
 
 struct set *set_union(struct set *set1, struct set *set2)
 {
-    struct set *s = set_create();
-    int size1 = list_size(set1->list);
-    int size2 = list_size(set2->list);
-    int arr1[size1];
-    int arr2[size2];
-    list_to_array(set1->list, arr1);
-    list_to_array(set2->list, arr2);
-    for (int i = 0; i < size1; i++)
-        set_insert(s, arr1[i]);
-    for (int i = 0; i < size2; i++)
-        set_insert(s, arr2[i]);
-    return s;
+    struct set *unionset = set_create();
+    struct list_node *cursor = set1->list->first;
+    while ((cursor = cursor->next) != set1->list->last)
+        set_insert(unionset, cursor->data);
+    cursor = set2->list->first;
+    while ((cursor = cursor->next) != set2->list->last)
+        set_insert(unionset, cursor->data);
+    return unionset;
+}
+
+struct set *set_intersect(struct set *set1, struct set *set2)
+{
+    struct set *interset = set_create();
+    struct list_node *cursor = set1->list->first;
+    while ((cursor = cursor->next) != set1->list->last)
+        if (set_contains(set2, cursor->data))
+            set_insert(interset, cursor->data);
+    cursor = set2->list->first;
+    while ((cursor = cursor->next) != set2->list->last)
+        if (set_contains(interset, cursor->data))
+            set_insert(interset, cursor->data);
+    return interset;
+}
+
+struct set *set_diff(struct set *set1, struct set *set2)
+{
+    struct set *diffset = set_create();
+    struct list_node *cursor = set1->list->first;
+    while ((cursor = cursor->next) != set1->list->last)
+        if (!set_contains(set2, cursor->data))
+            set_insert(diffset, cursor->data);
+    return diffset;
+}
+
+bool set_subset(struct set *set1, struct set *set2)
+{
+    struct list_node *cursor = set1->list->first;
+    while ((cursor = cursor->next) != set1->list->last)
+        if (set_contains(set2, cursor->data))
+            continue;
+        else
+            return false;
+    return true;
 }
 
 void set_to_array(struct set *set, int *arr)
@@ -91,12 +122,10 @@ int main(int argc, char **argv)
     set_insert(set, 45);
     set_insert(set, 44);
     set_insert(set, 46);
-    int size = set_size(set);
-    int arr[size];
-    set_to_array(set, arr);
-    assert(size == 3);
-    for (int i = 0; i < size; i++)
-        assert(arr[i] == 44 || arr[i] == 45 || arr[i] == 46);
+    assert(set_size(set) == 3);
+    assert(set_contains(set, 44));
+    assert(set_contains(set, 45));
+    assert(set_contains(set, 46));
 
     struct set *s1 = set_create();
     struct set *s2 = set_create();
@@ -108,16 +137,41 @@ int main(int argc, char **argv)
     set_insert(s2, 12);
     set_insert(s2, 45);
     set_insert(s2, 89);
+    set_insert(s2, 90);
+
     struct set *s3 = set_union(s1, s2);
-    size = set_size(s3);
-    int union_arr[size];
-    set_to_array(s3, union_arr);
-    assert(set_size(s3) == 5);
+    assert(set_size(s3) == 6);
     assert(set_contains(s3, 12));
     assert(set_contains(s3, 44));
     assert(set_contains(s3, 45));
     assert(set_contains(s3, 20));
     assert(set_contains(s3, 89));
+    assert(set_contains(s3, 90));
+
+    struct set *s4 = set_intersect(s1, s2);
+    assert(set_size(s4) == 3);
+    assert(set_contains(s4, 12));
+    assert(set_contains(s4, 45));
+    assert(set_contains(s4, 89));
+
+    struct set *s5 = set_diff(s1, s2);
+    struct set *s6 = set_diff(s2, s1);
+    assert(set_size(s5) == 1);
+    assert(set_contains(s5, 44));
+    assert(set_size(s6) == 2);
+    assert(set_contains(s6, 20));
+    assert(set_contains(s6, 90));
+
+    struct set *s7 = set_create();
+    struct set *s8 = set_create();
+    assert(set_subset(s7, s8));
+    set_insert(s7, 11);
+    set_insert(s7, 12);
+    set_insert(s8, 11);
+    set_insert(s8, 12);
+    set_insert(s8, 13);
+    assert(set_subset(s7, s8));
+    assert(set_subset(s8, s7) == false);
 
     set_free(set);
     return 0;
