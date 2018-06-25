@@ -11,5 +11,8 @@ or to compile with deps:
     cc set.c dlinked-list.c -o set
 
 # run
+
     ./bubble-sort
+    # or
+    racket < lists.rkt
 
