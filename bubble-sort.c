@@ -1,8 +1,8 @@
 #include <stdio.h>
 
-/* bubble sort for arrays */
+/* in-place bubble sort for arrays */
 
-int *bubble_sort(int *arr, int len)
+void bubble_sort(int *arr, int len)
 {
     int swap;
     while (len)
@@ -19,7 +19,6 @@ int *bubble_sort(int *arr, int len)
         }
         len--;
     }
-    return 0;
 }
 
 void array_print(int *arr, int len)
