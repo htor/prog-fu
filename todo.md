@@ -17,6 +17,7 @@
 * search / traversal
 * permutations
 * pattern matching
+* bit operations
 
 # assert stuff 
 use asserts to test correctness of implementations

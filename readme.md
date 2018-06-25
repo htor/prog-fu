@@ -6,9 +6,9 @@ various programming excercises.
 
     make bubble-sort
 
-or with deps in other files:
+or to compile with deps:
 
-    clang set.c dlinked-list.c -o set
+    cc set.c dlinked-list.c -o set
 
 # run
     ./bubble-sort
