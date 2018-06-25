@@ -3,7 +3,10 @@
 # data structures 
 
 * list, stack, queue
-* assoc array
+* sets
+* strings, arrays
+* trees, binary, n-ary, balanced
+* assoc array using hash table
 * s-expression
 * graph, dag
 
