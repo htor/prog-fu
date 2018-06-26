@@ -11,7 +11,7 @@ struct set
     struct list *list;
 };
 
-struct set *set_create()
+struct set *set_create(void)
 {
     struct set *set = calloc(1, sizeof(struct set));
     set->list = list_create();
