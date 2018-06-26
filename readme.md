@@ -1,6 +1,6 @@
-# progfu 
+# prog-fu 
 
-various programming excercises.
+various programming excercises
 
 # install
 
