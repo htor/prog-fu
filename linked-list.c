@@ -1,91 +1,97 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <assert.h>
+#include "linked-list.h"
 
-/* singly linked list */
-
-struct list 
-{
-    int data;
-    struct list *next;
-};
-
-bool list_empty(struct list *list)
-{
-    return list->next->next == NULL;
-}
-
-int list_size(struct list *list)
-{
-    if (list->next->next == NULL) 
-        return 0;
-    return 1 + list_size(list->next);
-}
+/* doubly linked list */
 
 struct list *list_create(void)
 {
     struct list *first = calloc(1, sizeof(struct list));
     struct list *last = calloc(1, sizeof(struct list));
     first->next = last;
+    last->prev = first;
     return first;
 }
 
-struct list *list_prepend(struct list *list, int data)
+int list_size(struct list *list)
+{
+    int size = 0;
+    struct list *cursor = list;
+    while ((cursor = cursor->next)->data)
+        size++;
+    return size;
+}
+
+struct list *list_prepend(struct list *list, void *data, int datasize)
 {
     struct list *new = calloc(1, sizeof(struct list));
     new->data = data;
+    new->datasize = datasize;
+    new->prev = list;
     new->next = list->next;
+    list->next->prev = new;
     list->next = new;
     return list;
 }
 
-struct list *list_append(struct list *list, int data)
+struct list *list_append(struct list *list, void *data, int datasize)
 {
-    if (list->next->next != NULL)
-        return list_append(list->next, data);
+    struct list *cursor = list;
     struct list *new = calloc(1, sizeof(struct list));
+    while ((cursor = cursor->next)->data);
     new->data = data;
-    new->next = list->next;
-    list->next = new;
+    new->datasize = datasize;
+    new->prev = cursor->prev;
+    new->next = cursor;
+    cursor->prev->next = new;
+    cursor->prev = new;
     return list;
 }
 
-struct list *list_remove(struct list *list, int data)
+bool list_contains(struct list *list, void *data)
 {
-    if (list->next->next == NULL)
-        return NULL;
-    if (list->next->data == data) {
-        struct list *rm = list->next;
-        list->next = list->next->next;
-        free(rm);
-        return rm;
-    }
-    return list_remove(list->next, data);
+    struct list *cursor = list;
+    while ((cursor = cursor->next)->data)
+        if (!memcmp(data, cursor->data, cursor->datasize))
+            return true;
+    return false;
 }
 
-void list_traverse(struct list *list, void (*callback)(struct list *data))
+void list_remove(struct list *list, void *data)
 {
-    if (list->next && list->next->next) 
+    struct list *cursor = list;
+    while ((cursor = cursor->next)->data)
     {
-        callback(list->next);
-        list_traverse(list->next, callback);
+        if (!memcmp(data, cursor->data, cursor->datasize))
+        {
+            cursor->prev->next = cursor->next;
+            cursor->next->prev = cursor->prev;
+            return free(cursor);
+        }
     }
 }
 
-struct list *list_search(struct list *list, int data)
+void list_clear(struct list *list)
 {
-    if (!(list->next && list->next->next))
-        return NULL;
-    if (list->next->data == data)
-        return list->next;
-    return list_search(list->next, data);
+    struct list *cursor = list;
+    while ((cursor = cursor->next)->data)
+        free(cursor);
+    list->next = cursor;
+    cursor->prev = list;
 }
 
-
-void list_print(struct list *list)
+void list_traverse(struct list *list, 
+        void (*callback)(struct list *cursor), bool reverse)
 {
-    printf("%d\n", list->data);
+    struct list *cursor = list;
+    if (reverse)
+    {
+        while ((cursor = cursor->next)->data);
+        while ((cursor = cursor->prev)->data)
+            callback(cursor);
+    } else 
+    {
+        while ((cursor = cursor->next)->data)
+            callback(cursor);
+    }
 }
 
 void list_free(struct list *list)
@@ -97,63 +103,35 @@ void list_free(struct list *list)
     }
 }
 
-int *list_array(struct list *list, int *arr)
-{
-    if (list->next && list->next->next)
-    {
-        *arr++ = list->next->data;
-        return list_array(list->next, arr);
-    }
-    return arr;
-
-}
-
-int main(int argc, char **argv)
+void list_test(void)
 {
     struct list *list = list_create();
-    assert(list_empty(list) == true);
+    int num1 = 90, num2 = 21, num3 = 198, num4 = 22;
+    int num5 = 90; 
+    list_append(list, &num1, sizeof(int));
+    list_append(list, &num2, sizeof(int));
+    list_append(list, &num3, sizeof(int));
+    assert(list_size(list) == 3);
+    assert(list_contains(list, &num5));
+    assert(list_contains(list, &num2));
+    assert(list_contains(list, &num3));
+
+    list_remove(list, &num4);
+    list_remove(list, &num2);
+    assert(list_size(list) == 2);
+
+    list_clear(list);
     assert(list_size(list) == 0);
 
-    list_prepend(list, 3);
-    list_prepend(list, 2);
-    list_prepend(list, 1);
-    assert(list_empty(list) == false);
+    char *strings[] = { "hello", "goodbye", "world!" };
+    list_prepend(list, strings[0], strlen(strings[0]));
+    list_prepend(list, strings[1], strlen(strings[1]));
+    list_prepend(list, strings[2], strlen(strings[2]));
     assert(list_size(list) == 3);
+    assert(!list_contains(list, "hi"));
+    assert(list_contains(list, "hello"));
+    assert(list_contains(list, "goodbye"));
+    assert(list_contains(list, "world!"));
 
-    list_append(list, 4); 
-    list_append(list, 5); 
-    assert(list_size(list) == 5);
-
-    list_remove(list, 5);
-    list_remove(list, 2);
-    list_remove(list, 11);
-    assert(list_size(list) == 3);
-
-    list_remove(list, 1);
-    list_remove(list, 2);
-    list_remove(list, 3);
-    list_remove(list, 4);
-    assert(list_empty(list) == true);
-    assert(list_size(list) == 0);
-
-    list_append(list, 11);
-    list_append(list, 32);
-    list_append(list, 123);
-
-    int arr[list_size(list)];
-    list_array(list, arr);
-    assert(list_size(list) == sizeof(arr) / sizeof(*arr));
-    assert(arr[0] == 11);
-    assert(arr[1] == 32);
-    assert(arr[2] == 123);
-
-    struct list *s1 = list_search(list, 32);
-    struct list *s2 = list_search(list, 23);
-    assert(s1 != NULL);
-    assert(s1->data == 32);
-    assert(s2 == NULL);
-    
-    list_traverse(list, list_print);
     list_free(list);
-    return 0;
 }
