@@ -9,6 +9,7 @@
 * assoc array using hash table
 * s-expression
 * graph, dag
+* streams, lazy eval
 
 # algorithms
 
