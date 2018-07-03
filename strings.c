@@ -6,7 +6,7 @@
 char **str_repeat(char *str, int times)
 {
     int length = strlen(str);
-    char **repeats = malloc(times * sizeof(char *) + sizeof(char *));
+    char **repeats = malloc((times + 1) * sizeof(char *));
     for (int i = 0; i < times; i++)
     {
         repeats[i] = malloc(length + 1);
